@@ -3,7 +3,7 @@
     "type": "library",
     "description": "Marketing toolkit for Pluggable plugins",
     "version": "0.1",
-    "keywords": ["plugin","pluggable"],
+    "keywords": ["marketing","pluggable"],
     "homepage": "https://bitbucket.org/pluggableio/marketing/",
     "license": "GPL-3.0-or-later",
     "authors": [
