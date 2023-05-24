@@ -34,17 +34,17 @@ class Deactivator {
 
 		add_action( 'admin_footer', [ $this, 'deactivation_survey_modal' ], 99 );
 
-		if( did_action( 'cx-plugin-deactivation' ) ) return;
-		do_action( 'cx-plugin-deactivation' );
+		if( did_action( 'pl-plugin-deactivation' ) ) return;
+		do_action( 'pl-plugin-deactivation' );
 
 		add_action( 'admin_head', [ $this, 'head' ], 99 );
-		add_action( 'wp_ajax_cx-plugin-deactivation', [ $this, 'send_deactivation_survey' ], 99 );
+		add_action( 'wp_ajax_pl-plugin-deactivation', [ $this, 'send_deactivation_survey' ], 99 );
 	}
 
 	public function head() {
 		?>
 		<style type="text/css">
-			.cx-plugin-deactivation-survey-overlay{background:rgba(0,0,0,.5);position:fixed;top:0;left:0;height:100vh;width:100%;z-index:10000;display:none;align-items:center;justify-content:center}.cx-plugin-deactivation-survey-modal{width:50%;background:#fff;padding:10px;display:grid;grid-template-columns:1fr}.cx-plugin-deactivation-survey-modal .cx-plugin-dsm-header{padding:0 15px}.cx-plugin-deactivation-survey-modal .cx-plugin-dsm-body{padding:20px 15px}.cx-plugin-deactivation-survey-modal .cx-plugin-deactivation-reasons{display:grid;gap:10px;margin-bottom:15px;grid-template-columns:repeat(3,1fr)}.cx-plugin-dsm-header .cx-title{margin-top:0;float:left}.cx-plugin-deactivation-survey-modal .cx-plugin-deactivation-reasons .cx-plugin-deactivation-reason label{display:block;border:1px solid #ccc;padding:10px;text-align:center;height:40px;border-radius:4px}.cx-plugin-dsm-footer .button:not(.button-primary):not(:hover){border-color:#dee0e1;color:#949799}.cx-plugin-deactivation-survey-modal .cx-plugin-deactivation-reasons .cx-plugin-deactivation-reason label.active{background:#007cba;color:#fff;border-color:#007cba}.cx-plugin-deactivation-survey-modal .cx-plugin-deactivation-reasons .cx-plugin-deactivation-reason input{display:none}.cx-plugin-deactivation-survey-modal .cx-plugin-dsm-reason-details-input{width:100%;border:1px solid #ccc;display:none}.cx-plugin-deactivation-survey-modal .cx-plugin-dsm-footer{border-top:1px solid #f1f1f1;display:flex;justify-content:space-between;padding:20px 10px 10px 10px}.cx-heading{font-weight:400;text-align:center;overflow:hidden}.cx-desc{color:#d7d7d7;font-style:italic;text-align:right;margin:0 auto 5px auto}.cx-consent-label{float:right;font-size:12px;padding-right:5px;cursor:pointer}
+			.pl-plugin-deactivation-survey-overlay{background:rgba(0,0,0,.5);position:fixed;top:0;left:0;height:100vh;width:100%;z-index:10000;display:none;align-items:center;justify-content:center}.pl-plugin-deactivation-survey-modal{width:50%;background:#fff;padding:10px;display:grid;grid-template-columns:1fr}.pl-plugin-deactivation-survey-modal .pl-plugin-dsm-header{padding:0 15px}.pl-plugin-deactivation-survey-modal .pl-plugin-dsm-body{padding:20px 15px}.pl-plugin-deactivation-survey-modal .pl-plugin-deactivation-reasons{display:grid;gap:10px;margin-bottom:15px;grid-template-columns:repeat(3,1fr)}.pl-plugin-dsm-header .pl-title{margin-top:0;float:left}.pl-plugin-deactivation-survey-modal .pl-plugin-deactivation-reasons .pl-plugin-deactivation-reason label{display:block;border:1px solid #ccc;padding:10px;text-align:center;height:40px;border-radius:4px}.pl-plugin-dsm-footer .button:not(.button-primary):not(:hover){border-color:#dee0e1;color:#949799}.pl-plugin-deactivation-survey-modal .pl-plugin-deactivation-reasons .pl-plugin-deactivation-reason label.active{background:#007cba;color:#fff;border-color:#007cba}.pl-plugin-deactivation-survey-modal .pl-plugin-deactivation-reasons .pl-plugin-deactivation-reason input{display:none}.pl-plugin-deactivation-survey-modal .pl-plugin-dsm-reason-details-input{width:100%;border:1px solid #ccc;display:none}.pl-plugin-deactivation-survey-modal .pl-plugin-dsm-footer{border-top:1px solid #f1f1f1;display:flex;justify-content:space-between;padding:20px 10px 10px 10px}.pl-heading{font-weight:400;text-align:center;overflow:hidden}.pl-desc{color:#d7d7d7;font-style:italic;text-align:right;margin:0 auto 5px auto}.pl-consent-label{float:right;font-size:12px;padding-right:5px;cursor:pointer}
 		</style>
 		<?php
 	}
@@ -56,31 +56,31 @@ class Deactivator {
 		<script type="text/javascript">
 			jQuery(function($){
 
-				$(document).on( 'click', '.cx-plugin-dsm-close', function(e){
+				$(document).on( 'click', '.pl-plugin-dsm-close', function(e){
 					e.preventDefault()
-					$('.cx-plugin-deactivation-survey-overlay').hide()
+					$('.pl-plugin-deactivation-survey-overlay').hide()
 				} )
 
-				$(document).on( 'click', '.cx-plugin-deactivation-reason', function(e){
+				$(document).on( 'click', '.pl-plugin-deactivation-reason', function(e){
 					var par = $(this);
 					if ( $( 'input', par ).prop("checked") == false ){
 					 	$('label', par).removeClass('active');
 					 }else{
 						$('label', par).addClass('active');
 					 }		 
-					$('.cx-plugin-dsm-reason-details-input').slideDown();
+					$('.pl-plugin-dsm-reason-details-input').slideDown();
 				} )
 
-				$(document).on( 'click', '.cx-consent-label', function(e){
+				$(document).on( 'click', '.pl-consent-label', function(e){
 					var desc = $(this).data('desc');
 					alert(desc)
 				} )
 				
-				$(document).on( 'submit', '.cx-plugin-deactivation-survey-form', function(e){
+				$(document).on( 'submit', '.pl-plugin-deactivation-survey-form', function(e){
 					e.preventDefault();
 					var data = $(this).serializeArray()
 					var parent = $(this);
-					$('.cx-plugin-dsm-submit', parent).prop('disabled', true);
+					$('.pl-plugin-dsm-submit', parent).prop('disabled', true);
 					 
 					$.ajax({
 						url: ajaxurl,
@@ -95,38 +95,38 @@ class Deactivator {
 
 				$(document).on( 'click', 'tr[data-slug="<?php echo $this->slug; ?>"] .deactivate a', function(e){
 					e.preventDefault()
-					$('.cx-plugin-deactivation-survey-overlay').css('display', 'flex');
-					$('.cx-plugin-dsm-skip-btn').prop('href', $(this).attr('href'));
+					$('.pl-plugin-deactivation-survey-overlay').css('display', 'flex');
+					$('.pl-plugin-dsm-skip-btn').prop('href', $(this).attr('href'));
 					$('#cxd-plugin-name').val( "<?php echo $this->slug; ?>" );
 				} )
 			})
 		</script>
 		<?php
 
-		if( did_action( 'cx-plugin-deactivation-modal' ) ) return;
-		do_action( 'cx-plugin-deactivation-modal' );
+		if( did_action( 'pl-plugin-deactivation-modal' ) ) return;
+		do_action( 'pl-plugin-deactivation-modal' );
 		
 		$user = wp_get_current_user();
 		?>
-		<div class="cx-plugin-deactivation-survey-overlay">
-			<div class="cx-plugin-deactivation-survey-modal">
+		<div class="pl-plugin-deactivation-survey-overlay">
+			<div class="pl-plugin-deactivation-survey-modal">
 
-				<div class="cx-plugin-deactivation-survey-form">
-					<form method="post" class="cx-plugin-deactivation-survey-form">
+				<div class="pl-plugin-deactivation-survey-form">
+					<form method="post" class="pl-plugin-deactivation-survey-form">
 						<input type="hidden" name="plugin" value="" id="cxd-plugin-name">
-						<input type="hidden" name="action" value="cx-plugin-deactivation">
-						<div class="cx-plugin-dsm-header">
-							<h3 class="cx-heading">
+						<input type="hidden" name="action" value="pl-plugin-deactivation">
+						<div class="pl-plugin-dsm-header">
+							<h3 class="pl-heading">
 								<?php printf( __( 'We\'re so sorry to see you go, %s!', 'pluggable' ), $user->display_name ); ?>
 							</h3>
-							<p class="cx-heading"><?php _e( 'Would you mind telling us why you are deactivating so we can improve it? 🤔', 'pluggable' ) ?></p>
+							<p class="pl-heading"><?php _e( 'Would you mind telling us why you are deactivating so we can improve it? 🤔', 'pluggable' ) ?></p>
 						</div>
-						<div class="cx-plugin-dsm-body">
-							<div class="cx-plugin-deactivation-reasons">
+						<div class="pl-plugin-dsm-body">
+							<div class="pl-plugin-deactivation-reasons">
 								<?php
 								foreach ( $this->get_reasons() as $key => $label ) {
 									echo "
-									<div class='cx-plugin-deactivation-reason'>
+									<div class='pl-plugin-deactivation-reason'>
 										<label for='{$key}'>{$label}</label>
 										<input type='checkbox' name='reason[]' value='{$key}' id='{$key}'>
 									</div>
@@ -134,16 +134,16 @@ class Deactivator {
 								}
 								?>
 							</div>
-							<div class="cx-plugin-dsm-reason-details">
-								<textarea class="cx-plugin-dsm-reason-details-input" name="explanation" rows="5" placeholder="Please Explain"></textarea>
+							<div class="pl-plugin-dsm-reason-details">
+								<textarea class="pl-plugin-dsm-reason-details-input" name="explanation" rows="5" placeholder="Please Explain"></textarea>
 							</div>
 						</div>
-						<div class="cx-plugin-dsm-footer">
-							<a href="" class="button cx-plugin-dsm-skip-btn"><?php _e( 'Skip & Deactivate', 'pluggable' ) ?></a>
-							<div class="cx-plugin-dsm-submit">
-								<button class="button cx-plugin-dsm-btn cx-plugin-dsm-close"><?php _e( 'Cancel', 'pluggable' ) ?></button>
+						<div class="pl-plugin-dsm-footer">
+							<a href="" class="button pl-plugin-dsm-skip-btn"><?php _e( 'Skip & Deactivate', 'pluggable' ) ?></a>
+							<div class="pl-plugin-dsm-submit">
+								<button class="button pl-plugin-dsm-btn pl-plugin-dsm-close"><?php _e( 'Cancel', 'pluggable' ) ?></button>
 								&nbsp;
-								<button class="button button-primary cx-plugin-dsm-btn cx-plugin-dsm-submit" type="submit"><?php _e( 'Submit & Deactivate', 'pluggable' ) ?></button>
+								<button class="button button-primary pl-plugin-dsm-btn pl-plugin-dsm-submit" type="submit"><?php _e( 'Submit & Deactivate', 'pluggable' ) ?></button>
 							</div>
 						</div>
 					</form>
@@ -186,6 +186,6 @@ class Deactivator {
 			'others'				=> 'Others',
 		];
 
-		return apply_filters( "cx-plugin-deactivation-reasons", $reasons, $this->slug );
+		return apply_filters( "pl-plugin-deactivation-reasons", $reasons, $this->slug );
 	}
 }
