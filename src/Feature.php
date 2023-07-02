@@ -60,7 +60,7 @@ class Feature {
 	}
 
 	public function hooks() {
-		add_filter( 'plugins_api_result', 'alter_api_result', 10, 3 );
+		add_filter( 'plugins_api_result', [ $this, 'alter_api_result' ], 10, 3 );
 	}
 
 	/**
