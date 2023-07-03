@@ -40,7 +40,7 @@ class Survey {
 		$this->args = wp_parse_args( $args, [
 			'server'	=> 'https://my.pluggable.io',
 			'hash'		=> 'a7719b8f-a43b-4c1d-aeb3-2823ef174f54',
-			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s<strong>!<br />Help us understand the plugin\'s usage on different sites for improved user satisfaction. Share your site URL and basic information (no passwords or sensitive data) to assist our continuous improvement efforts. Will you contribute?', 'pluggable' ), $this->plugin['Name'] ),
+			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand the plugin\'s usage on different sites for improved user satisfaction. Share your site URL and basic information (no passwords or sensitive data) to assist our continuous improvement efforts. Will you contribute?', 'pluggable' ), $this->plugin['Name'] ),
 			'remind'	=> __( 'Remind me later', 'pluggable' ),
 			'button'	=> __( 'Ok, but don\'t bother me again', 'pluggable' ),
 			'delay'		=> 2 * DAY_IN_SECONDS,
