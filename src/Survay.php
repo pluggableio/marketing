@@ -43,7 +43,7 @@ class Survey {
 			'text'		=> sprintf( __( 'Thanks for using %1$s!<br />Help us understand the plugin\'s usage on different sites for improved user satisfaction. Share your site URL and basic information (no passwords or sensitive data) to assist our continuous improvement efforts. Will you contribute?', 'pluggable' ), $this->plugin['Name'] ),
 			'remind'	=> __( 'Remind me later', 'pluggable' ),
 			'button'	=> __( 'Ok, but don\'t bother me again', 'pluggable' ),
-			'delay'		=> 20,// 2 * DAY_IN_SECONDS,
+			'delay'		=> 2 * DAY_IN_SECONDS,
 		] );
 
 		$this->hooks();
