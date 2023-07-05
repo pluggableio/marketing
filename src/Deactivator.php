@@ -107,7 +107,7 @@ class Deactivator {
 					});
 				} );
 
-				$(document).on( 'click', 'tr[data-slug="<?php echo $this->slug; ?>"] .deactivate a', function(e){
+				$(document).on( 'click', 'tr[data-plugin="<?php echo "{$this->slug}/{$this->slug}.php"; ?>"] .deactivate a', function(e){
 					e.preventDefault()
 					$('.pl-plugin-deactivation-survey-overlay').css('display', 'flex');
 					$('.pl-plugin-dsm-skip-btn').prop('href', $(this).attr('href'));
