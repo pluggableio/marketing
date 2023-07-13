@@ -51,6 +51,7 @@ class Survey {
 
 	public function hooks() {
 		register_activation_hook( $this->plugin_file, [ $this, 'activate' ] );
+		register_deactivation_hook( $this->plugin_file, [ $this, 'deactivate' ] );
 		add_action( 'admin_notices', [ $this, 'admin_notices' ] );
 		add_action( 'admin_footer', [ $this, 'admin_footer' ] );
 		add_action( "wp_ajax_{$this->plugin['TextDomain']}_survey", [ $this, 'ajax' ] );
@@ -58,6 +59,10 @@ class Survey {
 
 	public function activate() {
 		update_option( $this->activated_key, date_i18n( 'U' ) );
+	}
+
+	public function deactivate() {
+		delete_option( $this->activated_key );
 	}
 
 	public function admin_notices() {
@@ -68,8 +73,8 @@ class Survey {
 			'<div id="%1$s-survey-notice" class="notice notice-success is-dismissible pl-survey pl-notice pl-shadow" data-slug="%1$s" data-nonce="%5$s">
 				<p>%2$s</p>
 				<p>
-					<button class="button button-smallx button-primary pl-survey-btn" data-participate="1">%3$s</button>
-					<button class="button button-smallx pl-survey-btn" data-participate="0">%4$s</button>
+					<button class="button button-primary pl-survey-btn" data-participate="1">%3$s</button>
+					<button class="button pl-survey-btn" data-participate="0">%4$s</button>
 				</p>
 			</div>',
 			$this->plugin['TextDomain'],
@@ -81,6 +86,10 @@ class Survey {
 	}
 
 	public function admin_footer() {
+
+		if( did_action( 'pl-survey_footer-loaded' ) ) return;
+		do_action( 'pl-survey_footer-loaded' );
+		
 		?>
 		<script type="text/javascript">
 			jQuery(function($){
@@ -108,8 +117,6 @@ class Survey {
 			wp_send_json_error( [ 'message' => __( 'Unauthorized' ) ] );
 	    }
 
-		$installed_at = get_option( $this->activated_key );
-
 	    if( ! isset( $_POST['participate'] ) ) { // cancel
 	    	update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
 	    }
@@ -127,7 +134,7 @@ class Survey {
 	    	    'last_name'     => $user->last_name,
 	    	    'email'     	=> $user->user_email,
 	    	    'plugin'     	=> $this->args['TextDomain'],
-	    	    'site_url'     	=> site_url( '/' ),
+	    	    'site_url'     	=> site_url(),
 	    	], wp_unslash( $this->args['server'] ) );
 
 	    	wp_remote_post( $url );
