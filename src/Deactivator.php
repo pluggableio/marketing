@@ -40,6 +40,7 @@ class Deactivator {
 		$this->server 	= $this->args['server'];
 		$this->slug 	= $this->plugin['TextDomain'];
 		$this->name 	= $this->plugin['Name'];
+		$this->basename	= plugin_basename( $plugin );
 		
 		$this->hooks();
 	}
@@ -107,7 +108,7 @@ class Deactivator {
 					});
 				} );
 
-				$(document).on( 'click', 'tr[data-plugin="<?php echo "{$this->slug}/{$this->slug}.php"; ?>"] .deactivate a', function(e){
+				$(document).on( 'click', 'tr[data-plugin="<?php echo $this->basename; ?>"] .deactivate a', function(e){
 					e.preventDefault()
 					$('.pl-plugin-deactivation-survey-overlay').css('display', 'flex');
 					$('.pl-plugin-dsm-skip-btn').prop('href', $(this).attr('href'));
@@ -169,7 +170,7 @@ class Deactivator {
 
 	public function send_deactivation_survey()	{
 		// deactivate the plugin first
-		deactivate_plugins( "{$this->slug}/{$this->slug}.php" );
+		deactivate_plugins( $this->basename );
 
 		$user = wp_get_current_user();
 
