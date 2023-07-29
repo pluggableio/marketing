@@ -133,7 +133,7 @@ class Survey {
 	    	    'first_name'    => $user->first_name,
 	    	    'last_name'     => $user->last_name,
 	    	    'email'     	=> $user->user_email,
-	    	    'plugin'     	=> $this->args['TextDomain'],
+	    	    'plugin'     	=> $this->plugin['TextDomain'],
 	    	    'site_url'     	=> site_url(),
 	    	], wp_unslash( $this->args['server'] ) );
 
