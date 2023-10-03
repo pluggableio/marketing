@@ -19,6 +19,8 @@ class Feature {
 	
 	public $slug;
 	
+	public $server;
+	
 	public $name;
 
 	public $featured_plugins;
