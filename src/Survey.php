@@ -17,11 +17,13 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class Survey {
 	
-	public $name;
+	public $args;
 
 	public $plugin;
 
 	public $plugin_file;
+	
+	public $activated_key;
 	
 	public function __construct( $plugin_file, $args = [] ) {
 
