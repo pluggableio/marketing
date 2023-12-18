@@ -75,7 +75,7 @@ class Feature {
 	public function alter_api_result( $res, $action, $args ) {
 
 		// some $vars
-		$searching		= isset( $_REQUEST['s'] );
+		$searching		= isset( $_REQUEST['s'] ) && $_REQUEST['s'] != '';
 		$searching_wc	= $searching && strpos( 'woocommerce', $_REQUEST['s'] ) !== false;
 		$searching_el	= $searching && strpos( 'elementor', $_REQUEST['s'] ) !== false;
 
