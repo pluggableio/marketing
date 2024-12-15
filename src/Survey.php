@@ -25,10 +25,14 @@ class Survey {
 	
 	public $activated_key;
 	
-	public function __construct( $plugin, $args = [] ) {
+	public function __construct( $plugin_file, $args = [] ) {
 
-		$this->plugin			= $plugin;
-		$this->plugin_file		= $this->plugin['file'];
+		if( ! function_exists( 'get_plugin_data' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+		
+		$this->plugin_file		= $plugin_file;
+		$this->plugin			= get_plugin_data( $this->plugin_file );
 		$this->activated_key	= "pl-survey_{$this->plugin['TextDomain']}-activated";
 
 		$this->args = wp_parse_args( $args, [
