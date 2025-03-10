@@ -44,8 +44,8 @@ class Feature {
 				'restrict-elementor-widgets',
 				'image-sizes',
 				'wc-affiliate',
-				'easycommerce',
 				'woolementor',
+				'easycommerce',
 			],
 			'reserved'	=> [
 				'akismet',
@@ -103,8 +103,8 @@ class Feature {
 		elseif ( $searching_el ) {
 			$this->featured_plugins = [
 				'restrict-elementor-widgets',
-				'easycommerce',
 				'woolementor',
+				'easycommerce',
 			];
 			$this->reserved_plugins = [ 'elementor' ];
 		}
