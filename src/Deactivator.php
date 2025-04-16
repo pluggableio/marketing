@@ -173,7 +173,7 @@ class Deactivator {
 
 		$user = wp_get_current_user();
 
-		if( ! $this->hash_deactivator ) {
+		if( '' !== $this->hash_deactivator ) {
 			wp_remote_post(
 				"{$this->server}/?fluentcrm=1&route=contact&hash={$this->hash_deactivator}",
 				array(
