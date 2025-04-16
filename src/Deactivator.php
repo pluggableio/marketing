@@ -173,21 +173,23 @@ class Deactivator {
 
 		$user = wp_get_current_user();
 
-		wp_remote_post(
-			"http://pluggable.local/?fluentcrm=1&route=contact&hash={$this->hash_deactivator}",
-			array(
-				'body' => array(
-					'first_name'    => $user->first_name,
-					'last_name'     => $user->last_name,
-					'email'     	=> $user->user_email,
-					'plugin'     	=> sanitize_text_field( $_POST['plugin'] ),
-					'site_url'     	=> site_url( '/' ),
-					'delay'     	=> date_i18n( 'U' ) - (int) get_option( "{$this->slug}_install_time" ),
-					'deactivation'  => serialize( $_POST['reason'] ),
-					'feedback'		=> sanitize_textarea_field( $_POST['explanation'] ),
-				),
-			)
-		);
+		if( ! $this->hash_deactivator ) {
+			wp_remote_post(
+				"{$this->server}/?fluentcrm=1&route=contact&hash={$this->hash_deactivator}",
+				array(
+					'body' => array(
+						'first_name'    => $user->first_name,
+						'last_name'     => $user->last_name,
+						'email'     	=> $user->user_email,
+						'plugin'     	=> sanitize_text_field( $_POST['plugin'] ),
+						'site_url'     	=> site_url( '/' ),
+						'delay'     	=> date_i18n( 'U' ) - (int) get_option( "{$this->slug}_install_time" ),
+						'deactivation'  => serialize( $_POST['reason'] ),
+						'feedback'		=> sanitize_textarea_field( $_POST['explanation'] ),
+					),
+				)
+			);
+		}
 
 		wp_send_json( [ 'status' => 1, 'message' => __( 'Plugin deactivated' ) ] );
 	}
