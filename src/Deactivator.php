@@ -33,10 +33,13 @@ class Deactivator {
 	
 	public function __construct( $plugin, $args = [] ) {
 
-		$this->plugin 			= $plugin ;
-		$this->args 			= wp_parse_args( $args, [ 'server'	=> 'https://my.pluggable.io'] );
+		$this->plugin	= wp_parse_args( $plugin, [
+			'server'		=> 'https://my.pluggable.io',
+			'hash_deactivator'	=> 'a7719b8f-a43b-4c1d-aeb3-2823ef174f54'
+		] );
+
+		$this->server 			= $this->plugin['server'];
 		$this->hash_deactivator = $this->plugin['hash_deactivator'];
-		$this->server 			= $this->args['server'];
 		$this->slug 			= $this->plugin['TextDomain'];
 		$this->name 			= $this->plugin['Name'];
 		$this->basename			= plugin_basename( $plugin['basename'] );
