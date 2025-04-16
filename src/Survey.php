@@ -24,12 +24,15 @@ class Survey {
 	public $plugin_file;
 	
 	public $activated_key;
+
+	public $hash_survey;
 	
 	public function __construct( $plugin, $args = [] ) {
 
 		$this->plugin			= $plugin;
 		$this->plugin_file		= $this->plugin['file'];
 		$this->activated_key	= "pl-survey_{$this->plugin['TextDomain']}-activated";
+		$this->hash_survey		= $this->plugin['hash_survey'];
 
 		$this->args = wp_parse_args( $args, [
 			'server'	=> 'https://my.pluggable.io',
@@ -120,18 +123,21 @@ class Survey {
 	    else { // agreed
 	    	$user = wp_get_current_user();
 	    	
-	    	$url = add_query_arg( [ 
-	    	    'fluentcrm'		=> 1,
-	    	    'route'			=> 'contact',
-	    	    'hash'			=> $this->args['hash'],
-	    	    'first_name'    => $user->first_name,
-	    	    'last_name'     => $user->last_name,
-	    	    'email'     	=> $user->user_email,
-	    	    'plugin'     	=> $this->plugin['TextDomain'],
-	    	    'site_url'     	=> site_url(),
-	    	], wp_unslash( $this->args['server'] ) );
 
-	    	wp_remote_post( $url );
+			if( '' !== $this->hash_survey ) {
+				wp_remote_post(
+					"{$this->server}/?fluentcrm=1&route=contact&hash={$this->hash_survey}",
+					array(
+						'body' => array(
+							'first_name'    => $user->first_name,
+							'last_name'     => $user->last_name,
+							'email'     	=> $user->user_email,
+							'plugin'     	=> $this->plugin['TextDomain'],
+							'site_url'     	=> site_url(),
+						),
+					)
+				);
+			}
 
 	    	update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
 	    }
