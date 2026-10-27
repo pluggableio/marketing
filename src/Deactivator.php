@@ -60,14 +60,21 @@ class Deactivator {
 	}
 
 	public function stamp_install_time() {
-		add_option( "{$this->slug}_install_time", time() );
+		if ( add_option( "{$this->slug}_install_time", time() ) ) {
+			add_option( "{$this->slug}_install_time_estimated", 1 );
+		}
+	}
+
+	public function get_install_time() {
+		$installed = (int) get_option( "{$this->slug}_install_time" );
+
+		return ( $installed > 0 && $installed <= time() && ! get_option( "{$this->slug}_install_time_estimated" ) ) ? $installed : '';
 	}
 
 	public function get_delay() {
-		$installed = (int) get_option( "{$this->slug}_install_time" );
-		$delay     = time() - $installed;
+		$installed = $this->get_install_time();
 
-		return ( $installed > 0 && $delay >= 0 ) ? $delay : '';
+		return '' === $installed ? '' : time() - $installed;
 	}
 
 	public function head() {
@@ -225,6 +232,8 @@ class Deactivator {
 						'plugin'     	=> sanitize_text_field( $_POST['plugin'] ),
 						'site_url'     	=> site_url( '/' ),
 						'delay'     	=> $this->get_delay(),
+						'install_time'	=> $this->get_install_time(),
+						'plugin_version'=> isset( $this->plugin['Version'] ) ? sanitize_text_field( $this->plugin['Version'] ) : '',
 						'deactivation'  => serialize( $_POST['reason'] ),
 						'feedback'		=> sanitize_textarea_field( $_POST['explanation'] ),
 					),
