@@ -47,7 +47,6 @@ class Survey {
 			'consent'	=> sprintf( __( 'Yes, send my email address, first and last name, the plugin name and my site URL to %s so you can contact me about this plugin.', 'pluggable' ), wp_parse_url( $this->server, PHP_URL_HOST ) ),
 			'remind'	=> __( 'Remind me later', 'pluggable' ),
 			'button'	=> __( 'Ok, but don\'t bother me again', 'pluggable' ),
-			'decline'	=> __( 'No thanks', 'pluggable' ),
 			'delay'		=> 2 * DAY_IN_SECONDS,
 		] );
 
@@ -85,7 +84,6 @@ class Survey {
 				<p>
 					<button class="button button-primary pl-survey-btn" data-participate="1" disabled="disabled">%3$s</button>
 					<button class="button pl-survey-btn" data-participate="0">%4$s</button>
-					<button class="button pl-survey-btn" data-participate="-1">%7$s</button>
 				</p>
 			</div>',
 			esc_attr( $this->plugin['TextDomain'] ),
@@ -93,8 +91,7 @@ class Survey {
 			esc_html( $this->args['button'] ),
 			esc_html( $this->args['remind'] ),
 			esc_attr( wp_create_nonce( 'pl-survey' ) ),
-			esc_html( $this->args['consent'] ),
-			esc_html( $this->args['decline'] )
+			esc_html( $this->args['consent'] )
 		);
 	}
 
@@ -181,7 +178,7 @@ class Survey {
 			update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
 		} elseif ( '0' === $participate ) { // remind later
 			update_option( $this->activated_key, date_i18n( 'U' ) + WEEK_IN_SECONDS );
-		} else { // declined, dismissed or anything unexpected: send nothing
+		} else { // dismissed, or anything unexpected: send nothing
 			update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
 		}
 
