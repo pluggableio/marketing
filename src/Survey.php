@@ -42,7 +42,8 @@ class Survey {
 		$this->activated_key	= "pl-survey_{$this->plugin['TextDomain']}-activated";
 
 		$this->args = wp_parse_args( $args, [
-			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand the plugin\'s usage on different sites for improved user satisfaction. Share your site URL and basic information (no passwords or sensitive data) to assist our continuous improvement efforts. Will you contribute?', 'pluggable' ), $this->plugin['Name'] ),
+			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand how the plugin is used on different sites. If you agree, the details listed below are sent to our servers. Nothing is sent unless you tick the box and click the button.', 'pluggable' ), $this->plugin['Name'] ),
+			'consent'	=> __( 'Yes, send my email address, first and last name, the plugin name and my site URL to my.pluggable.io (Pluggable) so you can contact me about this plugin.', 'pluggable' ),
 			'remind'	=> __( 'Remind me later', 'pluggable' ),
 			'button'	=> __( 'Ok, but don\'t bother me again', 'pluggable' ),
 			'delay'		=> 2 * DAY_IN_SECONDS,
@@ -69,21 +70,25 @@ class Survey {
 
 	public function admin_notices() {
 
+		if( ! current_user_can( 'manage_options' ) ) return;
+
 		if( date_i18n( 'U' ) <= get_option( $this->activated_key ) + $this->args['delay'] ) return;
 
 		printf(
 			'<div id="%1$s-survey-notice" class="notice notice-success is-dismissible pl-survey pl-notice pl-shadow" data-slug="%1$s" data-nonce="%5$s">
 				<p>%2$s</p>
+				<p><label><input type="checkbox" class="pl-survey-consent" value="1" /> %6$s</label></p>
 				<p>
-					<button class="button button-primary pl-survey-btn" data-participate="1">%3$s</button>
+					<button class="button button-primary pl-survey-btn" data-participate="1" disabled="disabled">%3$s</button>
 					<button class="button pl-survey-btn" data-participate="0">%4$s</button>
 				</p>
 			</div>',
-			$this->plugin['TextDomain'],
-			$this->args['text'],
-			$this->args['button'],
-			$this->args['remind'],
-			wp_create_nonce(),
+			esc_attr( $this->plugin['TextDomain'] ),
+			wp_kses( $this->args['text'], [ 'strong' => [], 'br' => [], 'a' => [ 'href' => [], 'target' => [], 'rel' => [] ] ] ),
+			esc_html( $this->args['button'] ),
+			esc_html( $this->args['remind'] ),
+			esc_attr( wp_create_nonce( 'pl-survey' ) ),
+			esc_html( $this->args['consent'] )
 		);
 	}
 
@@ -95,19 +100,36 @@ class Survey {
 		?>
 		<script type="text/javascript">
 			jQuery(function($){
-			    $(document).on('click', '.pl-survey .notice-dismiss, .pl-survey .pl-survey-btn', function(e){
-			        $(this).prop('disabled', true);
-			        var $slug = $(this).closest('.pl-survey').data('slug')
-			        var $nonce = $(this).closest('.pl-survey').data('nonce')
-			        var $participate = $(this).data('participate');
+			    var send = function( $notice, participate, consent ) {
+			        var $slug = $notice.data('slug')
+			        var $nonce = $notice.data('nonce')
 			        $.ajax({
 			            url: ajaxurl,
-			            data: { 'action' : $slug + '_survey', participate : $participate, _wpnonce : $nonce },
+			            data: { 'action' : $slug + '_survey', participate : participate, consent : consent, _wpnonce : $nonce },
 			            type: 'POST',
 			            success: function(ret) {
-			                $('#'+$slug+'-survey-notice').slideToggle(500)
+			                $('#'+$slug+'-survey-notice').slideUp(500)
 			            }
 			        })
+			    }
+
+			    // The agree button only works while the consent box is ticked.
+			    $(document).on('change', '.pl-survey .pl-survey-consent', function(){
+			        $(this).closest('.pl-survey').find('.pl-survey-btn[data-participate="1"]').prop('disabled', ! this.checked)
+			    })
+
+			    $(document).on('click', '.pl-survey .pl-survey-btn', function(e){
+			        var $notice = $(this).closest('.pl-survey')
+			        var participate = String( $(this).data('participate') )
+			        var consent = $notice.find('.pl-survey-consent').is(':checked') ? 1 : 0
+			        if ( '1' === participate && ! consent ) return
+			        $(this).prop('disabled', true)
+			        send( $notice, participate, '1' === participate ? 1 : 0 )
+			    })
+
+			    // Closing the notice with the X is a dismissal, never an agreement.
+			    $(document).on('click', '.pl-survey .notice-dismiss', function(e){
+			        send( $(this).closest('.pl-survey'), '-1', 0 )
 			    })
 			})
 		</script>
@@ -115,19 +137,23 @@ class Survey {
 	}
 
 	public function ajax() {
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'] ) ) {
-			wp_send_json_error( [ 'message' => __( 'Unauthorized' ) ] );
-	    }
 
-	    if( ! isset( $_POST['participate'] ) ) { // cancel
-	    	update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
-	    }
-	    elseif( $_POST['participate'] == 0 ) { // remind later
-	    	update_option( $this->activated_key, date_i18n( 'U' ) + WEEK_IN_SECONDS );
-	    }
-	    else { // agreed
-	    	$user = wp_get_current_user();
-	    	
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unauthorized', 'pluggable' ) ], 403 );
+		}
+
+		$nonce = isset( $_POST['_wpnonce'] ) ? sanitize_text_field( wp_unslash( $_POST['_wpnonce'] ) ) : '';
+		if ( ! wp_verify_nonce( $nonce, 'pl-survey' ) ) {
+			wp_send_json_error( [ 'message' => __( 'Unauthorized', 'pluggable' ) ], 403 );
+		}
+
+		$participate = isset( $_POST['participate'] ) ? sanitize_text_field( wp_unslash( $_POST['participate'] ) ) : '';
+		$consent     = isset( $_POST['consent'] ) ? sanitize_text_field( wp_unslash( $_POST['consent'] ) ) : '';
+
+		// Only an explicit agreement with the consent box ticked sends anything.
+		if( '1' === $participate && '1' === $consent ) { // agreed
+			$user = wp_get_current_user();
+
 			if( '' !== $this->hash_survey ) {
 				wp_remote_post(
 					"{$this->server}/?fluentcrm=1&route=contact&hash={$this->hash_survey}",
@@ -143,7 +169,15 @@ class Survey {
 				);
 			}
 
-	    	update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
-	    }
+			update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
+		}
+		elseif( '0' === $participate ) { // remind later
+			update_option( $this->activated_key, date_i18n( 'U' ) + WEEK_IN_SECONDS );
+		}
+		else { // dismissed, or anything unexpected: send nothing
+			update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
+		}
+
+		wp_send_json_success();
 	}
 }
