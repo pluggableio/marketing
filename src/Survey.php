@@ -115,6 +115,10 @@ class Survey {
 			            type: 'POST',
 			            success: function(ret) {
 			                $('#'+$slug+'-survey-notice').slideUp(500)
+			            },
+			            error: function() {
+			                $notice.find('.pl-survey-btn, .pl-survey-consent').prop('disabled', false)
+			                $notice.find('.pl-survey-consent').trigger('change')
 			            }
 			        })
 			    }
@@ -129,7 +133,7 @@ class Survey {
 			        var participate = String( $(this).data('participate') )
 			        var consent = $notice.find('.pl-survey-consent').is(':checked') ? 1 : 0
 			        if ( '1' === participate && ! consent ) return
-			        $(this).prop('disabled', true)
+			        $notice.find('.pl-survey-btn, .pl-survey-consent').prop('disabled', true)
 			        send( $notice, participate, '1' === participate ? 1 : 0 )
 			    })
 
