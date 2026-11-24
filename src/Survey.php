@@ -42,10 +42,12 @@ class Survey {
 		$this->activated_key	= "pl-survey_{$this->plugin['TextDomain']}-activated";
 
 		$this->args = wp_parse_args( $args, [
-			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand how the plugin is used on different sites. If you agree, the details listed below are sent to our servers. Nothing is sent unless you tick the box and click the button.', 'pluggable' ), $this->plugin['Name'] ),
-			'consent'	=> __( 'Yes, send my email address, first and last name, the plugin name and my site URL to my.pluggable.io (Pluggable) so you can contact me about this plugin.', 'pluggable' ),
+			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand how the plugin is used on different sites. If you agree, the details listed below are sent to our servers. Nothing is sent unless you tick the box and click the send button.', 'pluggable' ), $this->plugin['Name'] ),
+			/* translators: %s: host the details are sent to */
+			'consent'	=> sprintf( __( 'Yes, send my email address, first and last name, the plugin name and my site URL to %s so you can contact me about this plugin.', 'pluggable' ), wp_parse_url( $this->server, PHP_URL_HOST ) ),
 			'remind'	=> __( 'Remind me later', 'pluggable' ),
-			'button'	=> __( 'Ok, but don\'t bother me again', 'pluggable' ),
+			'button'	=> __( 'Send my details', 'pluggable' ),
+			'decline'	=> __( 'No thanks', 'pluggable' ),
 			'delay'		=> 2 * DAY_IN_SECONDS,
 		] );
 
@@ -70,7 +72,9 @@ class Survey {
 
 	public function admin_notices() {
 
-		if( ! current_user_can( 'manage_options' ) ) return;
+		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
 
 		if( date_i18n( 'U' ) <= get_option( $this->activated_key ) + $this->args['delay'] ) return;
 
@@ -81,6 +85,7 @@ class Survey {
 				<p>
 					<button class="button button-primary pl-survey-btn" data-participate="1" disabled="disabled">%3$s</button>
 					<button class="button pl-survey-btn" data-participate="0">%4$s</button>
+					<button class="button pl-survey-btn" data-participate="-1">%7$s</button>
 				</p>
 			</div>',
 			esc_attr( $this->plugin['TextDomain'] ),
@@ -88,7 +93,8 @@ class Survey {
 			esc_html( $this->args['button'] ),
 			esc_html( $this->args['remind'] ),
 			esc_attr( wp_create_nonce( 'pl-survey' ) ),
-			esc_html( $this->args['consent'] )
+			esc_html( $this->args['consent'] ),
+			esc_html( $this->args['decline'] )
 		);
 	}
 
@@ -150,11 +156,10 @@ class Survey {
 		$participate = isset( $_POST['participate'] ) ? sanitize_text_field( wp_unslash( $_POST['participate'] ) ) : '';
 		$consent     = isset( $_POST['consent'] ) ? sanitize_text_field( wp_unslash( $_POST['consent'] ) ) : '';
 
-		// Only an explicit agreement with the consent box ticked sends anything.
-		if( '1' === $participate && '1' === $consent ) { // agreed
+		if ( '1' === $participate && '1' === $consent ) { // agreed
 			$user = wp_get_current_user();
 
-			if( '' !== $this->hash_survey ) {
+			if ( '' !== $this->hash_survey ) {
 				wp_remote_post(
 					"{$this->server}/?fluentcrm=1&route=contact&hash={$this->hash_survey}",
 					array(
@@ -170,11 +175,9 @@ class Survey {
 			}
 
 			update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
-		}
-		elseif( '0' === $participate ) { // remind later
+		} elseif ( '0' === $participate ) { // remind later
 			update_option( $this->activated_key, date_i18n( 'U' ) + WEEK_IN_SECONDS );
-		}
-		else { // dismissed, or anything unexpected: send nothing
+		} else { // declined, dismissed or anything unexpected: send nothing
 			update_option( $this->activated_key, date_i18n( 'U' ) + YEAR_IN_SECONDS );
 		}
 
