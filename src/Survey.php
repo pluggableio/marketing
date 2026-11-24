@@ -42,11 +42,11 @@ class Survey {
 		$this->activated_key	= "pl-survey_{$this->plugin['TextDomain']}-activated";
 
 		$this->args = wp_parse_args( $args, [
-			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand how the plugin is used on different sites. If you agree, the details listed below are sent to our servers. Nothing is sent unless you tick the box and click the send button.', 'pluggable' ), $this->plugin['Name'] ),
+			'text'		=> sprintf( __( 'Thanks for using <strong>%1$s</strong>!<br />Help us understand how the plugin is used on different sites. If you agree, the details listed below are sent to our servers. Nothing is sent unless you tick the box and click the button.', 'pluggable' ), $this->plugin['Name'] ),
 			/* translators: %s: host the details are sent to */
 			'consent'	=> sprintf( __( 'Yes, send my email address, first and last name, the plugin name and my site URL to %s so you can contact me about this plugin.', 'pluggable' ), wp_parse_url( $this->server, PHP_URL_HOST ) ),
 			'remind'	=> __( 'Remind me later', 'pluggable' ),
-			'button'	=> __( 'Send my details', 'pluggable' ),
+			'button'	=> __( 'Ok, but don\'t bother me again', 'pluggable' ),
 			'decline'	=> __( 'No thanks', 'pluggable' ),
 			'delay'		=> 2 * DAY_IN_SECONDS,
 		] );
